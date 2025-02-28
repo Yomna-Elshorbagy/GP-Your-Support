@@ -1,0 +1,35 @@
+const generateMessage = (entity) => ({
+  alreadyExisist: `${entity} already exist`,
+  notFound: `${entity} not found`,
+  notAllowed: `You are not allowed to ${entity}`,
+  notAuthorized: `You are not authorized to ${entity}`,
+  notValid: `${entity} is not valid`,
+  notMatch: `${entity} do not match`,
+  notCorrect: `${entity} is not correct`,
+  notUnique: `${entity} must be unique`,
+  failToCreate: `fail to create ${entity}`,
+  failToUpdate: `fail to update ${entity}`,
+  failToDelete: `fail to delete ${entity}`,
+  createdSucessfully: `${entity} created Sucessfully`,
+  updatedSucessfully: `${entity} updated Sucessfully`,
+  deletedSucessfully: `${entity} deleted Sucessfully`,
+  fetchedSuccessfully: `${entity} fetched Sucessfully`,
+});
+
+export const messages = {
+  user: {
+    ...generateMessage("user"),
+    verifiedSucessfully: "account verified Sucessfully",
+    invalidCredential: "invalid credential",
+    logedInSucessfully: "logIn Sucessfully",
+    notVerified: "email Not Verified",
+    hasOTP: "you already has OTP",
+    expireOTP: "OTP expired",
+    invalidOTP: "Invalid OTP",
+    loggedOutSuccessfully: "logged Out Successfully",
+  },
+  password: generateMessage("password"),
+  category: generateMessage("category"),
+  file: { required: "file is required" },
+  product: { ...generateMessage("product"), outStock: "Out Of Stock" },
+};
