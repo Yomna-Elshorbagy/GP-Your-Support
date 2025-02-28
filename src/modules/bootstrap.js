@@ -1,7 +1,7 @@
-import { dbConnection } from '../../database/dbconnection.js';
-import { AppError } from '../utils/catch-error.js';
-import { globalError } from '../utils/global-error.js';
-import * as allRouters from './index.js'
+import { dbConnection } from "../../database/dbconnection.js";
+import { AppError } from "../utils/catch-error.js";
+import { globalError } from "../utils/global-error.js";
+import * as allRouters from "./index.js";
 
 export const bootstrap = (app) => {
   process.on("uncaughtException", (err) => {
@@ -12,7 +12,9 @@ export const bootstrap = (app) => {
 
   app.use("/user", allRouters.userRouter);
   app.use("/categories", allRouters.categoryRouter);
-
+  app.all("*", (req, res, next) => {
+    return res.json({ message: "invalid url" });
+  });
 
   app.use("*", (req, res, next) => {
     next(new AppError(`Route Not Found ${req.originalUrl}`, 404));
