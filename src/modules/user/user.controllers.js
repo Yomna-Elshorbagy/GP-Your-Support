@@ -7,13 +7,13 @@ import { comparePass, hashedPass } from "../../utils/hash-compare.js";
 import { sendEmail, sendResetPasswordMail } from "../../utils/email.js";
 import Token from "../../../database/models/token.model.js";
 import { status } from "../../utils/constant/enums.js";
+import cloudinary from "../../utils/fileUpload/cloudinary.js";
 
-
-// Auth Apis 
+// Auth Apis
 
 export const signup = catchAsyncError(async (req, res, next) => {
   //get data from req
-  let { userName, email, password, Cpassword, mobileNumber, address } =
+  let { userName, email, password, Cpassword, mobileNumber, address, image } =
     req.body;
   //check exisiting
   const userExisting = await User.findOne({
@@ -26,6 +26,13 @@ export const signup = catchAsyncError(async (req, res, next) => {
       new AppError("password annd confirmed password doesnot Match", 401)
     );
   //prepare data
+  if (req.file) {
+    const { secure_url, public_id } = await cloudinary.uploader.upload(
+      req.file.path,
+      { folder: "Be-Your-Support/user" }
+    );
+    req.body.image = { secure_url, public_id };
+  }
   const hashedpassword = hashedPass({
     password,
     saltRounds: Number(process.env.SALT_ROUNDS),
@@ -40,6 +47,7 @@ export const signup = catchAsyncError(async (req, res, next) => {
     mobileNumber,
     otpCode,
     otpExpire,
+    image: req.body.image,
   });
 
   let createdUser = await user.save();
@@ -230,7 +238,6 @@ export const logout = catchAsyncError(async (req, res, next) => {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
 // User Api
 
 export const getProfile = catchAsyncError(async (req, res, next) => {
@@ -287,7 +294,6 @@ export const resetPassword = catchAsyncError(async (req, res, next) => {
   });
 });
 
-
 export const updateUser = catchAsyncError(async (req, res, next) => {
   const id = req.authUser._id;
   const { userName, mobileNumber, address } = req.body;
@@ -308,14 +314,12 @@ export const updateUser = catchAsyncError(async (req, res, next) => {
   if (!updatedUser) {
     return next(new AppError(messages.user.failToUpdate, 500));
   }
-  updatedUser.password = undefined
-  res
-    .status(200)
-    .json({
-      message: messages.user.updatedSucessfully,
-      sucess: true,
-      data: updatedUser,
-    });
+  updatedUser.password = undefined;
+  res.status(200).json({
+    message: messages.user.updatedSucessfully,
+    sucess: true,
+    data: updatedUser,
+  });
 });
 
 export const deleteUser = catchAsyncError(async (req, res, next) => {
@@ -349,7 +353,6 @@ export const softDeleteUser = catchAsyncError(async (req, res, next) => {
   res.status(200).json({
     message: messages.user.deletedSucessfully,
     success: true,
-    data: softDeletedUser 
+    data: softDeletedUser,
   });
 });
-

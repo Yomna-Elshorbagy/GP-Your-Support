@@ -24,7 +24,6 @@ let userSchema = new mongoose.Schema(
     mobileNumber: {
       type: String,
       required: true,
-      unique: true,
       validate: {
         validator: /^01[01245]\d{8}$/,
         message: (props) => `${props.value} is not a valid mobile number!`,
@@ -47,6 +46,13 @@ let userSchema = new mongoose.Schema(
       type: String,
       enum: Object.values(status),
       default: status.PENDING,
+    },
+    image: {
+      type: Object,
+      default: {
+        secure_url: process.env.SECURE_URL,
+        public_id: process.env.PUBLIC_ID,
+      },
     },
     address: String,
     otpCode: String,
