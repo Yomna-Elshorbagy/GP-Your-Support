@@ -30,4 +30,8 @@ userRouter.put("/softdelete", auth, userControllers.softDeleteUser);
 userRouter.delete("/", auth, userControllers.deleteUser);
 
 
+//user data with products added
+userRouter.get("/getproducts", auth, userControllers.getUserWithProducts);
+
+
 export default userRouter;

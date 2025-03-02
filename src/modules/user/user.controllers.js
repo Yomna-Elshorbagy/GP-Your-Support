@@ -28,9 +28,12 @@ export const signup = catchAsyncError(async (req, res, next) => {
   //prepare data
   let image;
   if (req.file) {
-    const { secure_url, public_id } = await cloudinary.uploader.upload(req.file.path, {
-      folder: "Be-Your-Support/user",
-    });
+    const { secure_url, public_id } = await cloudinary.uploader.upload(
+      req.file.path,
+      {
+        folder: "Be-Your-Support/user",
+      }
+    );
     image = { secure_url, public_id };
   }
   const hashedpassword = hashedPass({
@@ -354,5 +357,27 @@ export const softDeleteUser = catchAsyncError(async (req, res, next) => {
     message: messages.user.deletedSucessfully,
     success: true,
     data: softDeletedUser,
+  });
+});
+
+//user data with products added
+export const getUserWithProducts = catchAsyncError(async (req, res, next) => {
+  const userId = req.authUser._id;
+
+  const user = await User.findById(userId)
+    .select("-password -otpCode -otpExpire") // exclude sensitive fields
+    .populate({
+      path: "products",
+      select: "-__v -updatedBy", // exclude unwanted fields from products
+    });
+
+  if (!user) {
+    return next(new AppError("User not found", 404));
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "User data retrieved successfully",
+    data: user,
   });
 });
