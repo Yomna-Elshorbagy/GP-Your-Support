@@ -10,11 +10,7 @@ let productSchema = mongoose.Schema(
       unique: [true, "Product name is required"],
       minlength: [2, "too short Product name"],
     },
-    slug: {
-      type: String,
-      lowercase: true,
-      required: true,
-    },
+
     description: {
       type: String,
       required: true,
@@ -75,13 +71,6 @@ let productSchema = mongoose.Schema(
   }
 );
 
-productSchema.pre("save", function (next) {
-  if (this.isModified("title") || !this.slug) {
-    this.slug = slugify(this.title, { lower: true });
-  }
-  next();
-});
-
 productSchema.virtual("finalPrice").get(function () {
   return this.price - this.price * ((this.discount || 0) / 100);
 });
@@ -89,7 +78,6 @@ productSchema.virtual("finalPrice").get(function () {
 productSchema.methods.instock = function (quentity) {
   return this.stock >= quentity ? true : false;
 };
-
 
 let Product = mongoose.model("Product", productSchema);
 export default Product;

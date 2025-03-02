@@ -1,25 +1,32 @@
 import { Types } from "mongoose";
-import joi from 'joi';
+import joi from "joi";
 import { AppError } from "../utils/catch-error.js";
 
-const validateObject = (value, helper)=>{
-  const match = Types.ObjectId.isValid(value)
-  if(match) {return true}
-  return helper('invalid ObjectId')
-}
+const validateObject = (value, helper) => {
+  const match = Types.ObjectId.isValid(value);
+  if (match) {
+    return true;
+  }
+  return helper("invalid ObjectId");
+};
 
 const passPattern = /^[A-Z][A-Za-z0-9]{5,20}$/;
 const mobileNumberPattern = /^01[01245]\d{8}$/;
 
 export const generalFields = {
-  name : joi.string(),
-  email:joi.string().email(),
+  name: joi.string(),
+  email: joi.string().email(),
   password: joi.string().pattern(new RegExp(passPattern)),
-  Cpassword: joi.valid(joi.ref('password')),
+  Cpassword: joi.valid(joi.ref("password")),
   mobileNumber: joi.string().pattern(new RegExp(mobileNumberPattern)),
   // objectId : joi.string().hex().length(24),
-  objectId: joi.custom(validateObject)
-}
+  objectId: joi.custom(validateObject),
+  description: joi.string().min(20).max(2000),
+  price: joi.number().min(0),
+  discount: joi.number().min(0).max(100),
+  stock: joi.number().min(1),
+  rate: joi.number().positive().min(0).max(5),
+};
 export const validate = (schema) => {
   return (req, res, next) => {
     let data = { ...req.body, ...req.params, ...req.query };
