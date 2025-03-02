@@ -13,7 +13,7 @@ import cloudinary from "../../utils/fileUpload/cloudinary.js";
 
 export const signup = catchAsyncError(async (req, res, next) => {
   //get data from req
-  let { userName, email, password, Cpassword, mobileNumber, address, image } =
+  let { userName, email, password, Cpassword, mobileNumber, address } =
     req.body;
   //check exisiting
   const userExisting = await User.findOne({
@@ -26,12 +26,12 @@ export const signup = catchAsyncError(async (req, res, next) => {
       new AppError("password annd confirmed password doesnot Match", 401)
     );
   //prepare data
+  let image;
   if (req.file) {
-    const { secure_url, public_id } = await cloudinary.uploader.upload(
-      req.file.path,
-      { folder: "Be-Your-Support/user" }
-    );
-    req.body.image = { secure_url, public_id };
+    const { secure_url, public_id } = await cloudinary.uploader.upload(req.file.path, {
+      folder: "Be-Your-Support/user",
+    });
+    image = { secure_url, public_id };
   }
   const hashedpassword = hashedPass({
     password,
@@ -47,7 +47,7 @@ export const signup = catchAsyncError(async (req, res, next) => {
     mobileNumber,
     otpCode,
     otpExpire,
-    image: req.body.image,
+    ...(image && { image }),
   });
 
   let createdUser = await user.save();
