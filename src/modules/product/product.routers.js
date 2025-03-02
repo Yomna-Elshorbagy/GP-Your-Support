@@ -24,5 +24,6 @@ productRouter
   .get(productControllers.getAllproducts);
 
 productRouter.route("/:id").get(productControllers.getSpeificproduct);
+productRouter.get("/contact/:productId", auth, productControllers.contactProductOwner);
 
 export default productRouter;
