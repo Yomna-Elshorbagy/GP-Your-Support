@@ -13,17 +13,6 @@ whatsappRouter.post(
 );
 
 whatsappRouter.get(
-  "/seller-status/:productId",
-  whatsappControllers.checkSellerStatus
-);
-
-whatsappRouter.get(
-  "/create-group/:productId",
-  auth,
-  whatsappControllers.generateWhatsAppGroup
-);
-
-whatsappRouter.get(
   "/chat-history/:sellerId",
   auth,
   whatsappControllers.getChatHistory
