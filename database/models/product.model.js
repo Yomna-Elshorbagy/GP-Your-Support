@@ -79,5 +79,22 @@ productSchema.methods.instock = function (quentity) {
   return this.stock >= quentity ? true : false;
 };
 
+productSchema.pre("save", async function (next) {
+  if (!this.isModified("price")) return next(); // Only run if price changes
+
+  const previousProduct = await Product.findById(this._id);
+  if (!previousProduct) return next();
+
+  if (this.price < previousProduct.price) {
+    await notifyUsersAboutPriceDrop(
+      this._id,
+      previousProduct.price,
+      this.price
+    );
+  }
+
+  next();
+});
+
 let Product = mongoose.model("Product", productSchema);
 export default Product;

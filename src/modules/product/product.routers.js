@@ -23,7 +23,25 @@ productRouter
   )
   .get(productControllers.getAllproducts);
 
-productRouter.route("/:id").get(productControllers.getSpeificproduct);
-productRouter.get("/contact/:productId", auth, productControllers.contactProductOwner);
+productRouter
+  .route("/:id")
+  .get(productControllers.getSpeificproduct)
+  .put(
+    auth,
+    isAuthorized([roles.USER]),
+    uploadMixFiles([
+      { name: "imageCover", maxCount: 1 },
+      { name: "images", maxCount: 8 },
+    ]),
+    productControllers.updateproductCloud
+  );
+
+productRouter.get(
+  "/contact/:productId",
+  auth,
+  productControllers.contactProductOwner
+);
+productRouter.get("/related/:productId", productControllers.getRelatedProducts);
+productRouter.post("/subscribe-price/:productId", auth, productControllers.subscribeToPriceDrop);
 
 export default productRouter;
