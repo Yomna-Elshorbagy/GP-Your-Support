@@ -23,7 +23,7 @@ let userSchema = new mongoose.Schema(
     },
     mobileNumber: {
       type: String,
-      required: true,
+      // required: true,
       validate: {
         validator: /^01[01245]\d{8}$/,
         message: (props) => `${props.value} is not a valid mobile number!`,
