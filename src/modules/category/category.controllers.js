@@ -46,9 +46,10 @@ export const addCategoryCloud = catchAsyncError(async (req, res, next) => {
 export const updateCategoryCloud = catchAsyncError(async (req, res, next) => {
   const { id } = req.params;
   const { name } = req.body;
+  const userId = req.authUser._id;
 
   // check category exisist
-  const categoryExisist = await Category.findById(id);
+  const categoryExisist = await Category.findOne({ _id: id, createdBy: userId });
   if (!categoryExisist)
     return next(new AppError(messages.category.notFound, 404));
   // check name exisit

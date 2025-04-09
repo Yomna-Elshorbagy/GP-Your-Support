@@ -13,7 +13,7 @@ productRouter
   .route("/")
   .post(
     auth,
-    isAuthorized([roles.USER, roles.ADMIN]),
+    isAuthorized([roles.USER, roles.ADMIN, roles.VISITOR]),
     uploadMixFiles([
       { name: "imageCover", maxCount: 1 },
       { name: "subImages", maxCount: 8 },
@@ -28,7 +28,7 @@ productRouter
   .get(productControllers.getSpeificproduct)
   .put(
     auth,
-    isAuthorized([roles.USER, roles.ADMIN]),
+    isAuthorized([roles.USER, roles.ADMIN, roles.VISITOR]),
     uploadMixFiles([
       { name: "imageCover", maxCount: 1 },
       { name: "images", maxCount: 8 },

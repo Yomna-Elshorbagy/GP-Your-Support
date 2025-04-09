@@ -69,6 +69,7 @@ export const addproduct = catchAsyncError(async (req, res, next) => {
 
 export const updateproductCloud = catchAsyncError(async (req, res, next) => {
   const { id } = req.params;
+  const userId = req.authUser._id;
   let {
     title,
     description,
@@ -84,7 +85,7 @@ export const updateproductCloud = catchAsyncError(async (req, res, next) => {
     subImages,
   } = req.body;
 
-  let product = await Product.findById(id);
+  let product = await Product.findOne({ _id: id, createdBy: userId });
   if (!product) return next(new AppError(messages.product.notFound, 404));
 
   let failImages = [];

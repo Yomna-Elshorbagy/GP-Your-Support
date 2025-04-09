@@ -11,7 +11,7 @@ const categoryRouter = Router();
 categoryRouter.post(
   "/addCategory",
   auth,
-  isAuthorized([roles.USER, roles.ADMIN]),
+  isAuthorized([roles.USER, roles.ADMIN, roles.VISITOR]),
   uploadSingleFile("image"),
   validate(addCategoryVal),
   categoryControllers.addCategoryCloud
@@ -25,7 +25,7 @@ categoryRouter
   .get(categoryControllers.getSpeificCategory)
   .put(
     auth,
-    isAuthorized([roles.USER, roles.ADMIN]),
+    isAuthorized([roles.USER, roles.ADMIN, roles.VISITOR]),
     uploadSingleFile("image", "categories"),
     validate(updateCategoryVal),
     categoryControllers.updateCategoryCloud

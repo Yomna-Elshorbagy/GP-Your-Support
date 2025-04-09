@@ -32,7 +32,7 @@ let userSchema = new mongoose.Schema(
     role: {
       type: String,
       enum: Object.values(roles),
-      default: roles.VISITOR,
+      default: roles.USER,
     },
     isVerified: {
       type: Boolean,
