@@ -247,6 +247,7 @@ export const getRelatedProducts = catchAsyncError(async (req, res, next) => {
   res.status(200).json({ success: true, relatedProducts });
 });
 
+//sorts the products in descending order of their views with limit 10 products
 export const getTrendingProducts = catchAsyncError(async (req, res, next) => {
   const trendingProducts = await Product.find().sort({ views: -1 }).limit(10);
   res.status(200).json({ success: true, trendingProducts });
@@ -280,5 +281,26 @@ export const subscribeToPriceDrop = catchAsyncError(async (req, res, next) => {
     success: true,
     message: "Subscribed for price drop alerts successfully!",
     subscribedPrice: product.price,
+  });
+});
+
+export const deleteproduct = catchAsyncError(async (req, res, next) => {
+  let { id } = req.params;
+  const product = await Product.findById(id);
+  if (!product) return next(new AppError(messages.product.notFound, 404));
+
+  //delete images
+  await cloudinary.uploader.destroy(product.imageCover.public_id);
+  for (const image of product.subImages) {
+    await cloudinary.uploader.destroy(image.public_id);
+  }
+
+  let deleteProduct = await Product.findByIdAndDelete(id);
+  if (!deleteProduct)
+    return next(new AppError(messages.product.failToUpdate, 500));
+  res.status(200).json({
+    message: messages.product.deletedSucessfully,
+    sucess: true,
+    data: deleteProduct,
   });
 });

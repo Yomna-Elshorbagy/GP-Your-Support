@@ -22,6 +22,7 @@ productRouter
     productControllers.addproduct
   )
   .get(productControllers.getAllproducts);
+productRouter.get("/trending", productControllers.getTrendingProducts);
 
 productRouter
   .route("/:id")
@@ -41,7 +42,13 @@ productRouter.get(
   auth,
   productControllers.contactProductOwner
 );
+
 productRouter.get("/related/:productId", productControllers.getRelatedProducts);
-productRouter.post("/subscribe-price/:productId", auth, productControllers.subscribeToPriceDrop);
+productRouter.post(
+  "/subscribe-price/:productId",
+  auth,
+  productControllers.subscribeToPriceDrop
+);
+productRouter.get("/:productId", productControllers.deleteproduct);
 
 export default productRouter;
