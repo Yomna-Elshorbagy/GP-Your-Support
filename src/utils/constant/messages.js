@@ -32,4 +32,6 @@ export const messages = {
   category: generateMessage("category"),
   file: { required: "file is required" },
   product: { ...generateMessage("product"), outStock: "Out Of Stock" },
+  wishlist: { ...generateMessage("wishlist") },
+  cart: { ...generateMessage("cart"), empty: "cart empty" },
 };

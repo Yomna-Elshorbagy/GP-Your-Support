@@ -57,6 +57,12 @@ let userSchema = new mongoose.Schema(
     address: String,
     otpCode: String,
     otpExpire: Date,
+    wishlist: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Product",
+      },
+    ],
   },
   {
     timestamps: true,

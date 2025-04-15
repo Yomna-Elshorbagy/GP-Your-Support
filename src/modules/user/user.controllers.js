@@ -8,6 +8,7 @@ import { sendEmail, sendResetPasswordMail } from "../../utils/email.js";
 import Token from "../../../database/models/token.model.js";
 import { status } from "../../utils/constant/enums.js";
 import cloudinary from "../../utils/fileUpload/cloudinary.js";
+import Cart from "../../../database/models/cart.model.js";
 
 // Auth Apis
 
@@ -95,6 +96,8 @@ export const verifyAccount = catchAsyncError(async (req, res, next) => {
     }
   );
   if (!user) return next(new AppError(messages.user.notFound, 404));
+  //create cart when verification
+  await Cart.create({ user: user._id, products: [] });
   res.json({
     message: messages.user.verifiedSucessfully,
     sucess: true,
