@@ -32,6 +32,7 @@ export const bootstrap = (app) => {
   app.use("/products", allRouters.productRouter);
   app.use("/whatsapp", allRouters.whatsappRouter);
   app.use("/wishlist", allRouters.wishlistRouter);
+  app.use("/cart", allRouters.cartRouter);
   app.all("*", (req, res, next) => {
     return res.json({ message: "invalid url" });
   });
