@@ -22,6 +22,7 @@ export const addToWishlist = catchAsyncError(async (req, res, next) => {
   return res.status(200).json({
     message: messages.wishlist.createdSucessfully,
     sucess: true,
+    totalWishlistItems: user.wishlist.length,
     data: user.wishlist,
   });
 });

@@ -147,10 +147,15 @@ export const updateproductCloud = catchAsyncError(async (req, res, next) => {
 });
 
 export const getAllproducts = catchAsyncError(async (req, res, next) => {
-  const Products = await Product.find().populate({
-    path: "createdBy",
-    select: ["address", "userName", "mobileNumber"],
-  });
+  const Products = await Product.find()
+    .populate({
+      path: "createdBy",
+      select: ["address", "userName", "mobileNumber"],
+    })
+    .populate({
+      path: "category",
+      select: ["name", "slug", "image", "createdBy"],
+    });
   res.status(200).json({ message: "Products are : ", Products });
 });
 
@@ -171,10 +176,15 @@ export const getproducts = catchAsyncError(async (req, res, next) => {
 
 export const getSpeificproduct = catchAsyncError(async (req, res, next) => {
   let { id } = req.params;
-  let product = await Product.findById(id).populate({
-    path: "createdBy",
-    select: ["address", "userName", "mobileNumber"],
-  });
+  let product = await Product.findById(id)
+    .populate({
+      path: "createdBy",
+      select: ["address", "userName", "mobileNumber"],
+    })
+    .populate({
+      path: "category",
+      select: ["name", "slug", "image", "createdBy"],
+    });
   if (!product) return next(new AppError(messages.product.notFound, 404));
   res.status(200).json({ message: "Product is : ", data: product });
 });
