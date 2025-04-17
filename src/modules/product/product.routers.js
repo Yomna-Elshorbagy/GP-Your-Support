@@ -49,6 +49,6 @@ productRouter.post(
   auth,
   productControllers.subscribeToPriceDrop
 );
-productRouter.delete("/:productId", productControllers.deleteproduct);
+productRouter.delete("/:id", productControllers.deleteproduct);
 
 export default productRouter;
