@@ -158,6 +158,7 @@ export const logIn = catchAsyncError(async (req, res, next) => {
 
   const accessToken = await generateToken({
     payload: {
+      userName: userExist.userName,
       _id: userExist._id,
       email: userExist.email,
       role: userExist.role,
