@@ -6,6 +6,7 @@ import { AppError, catchAsyncError } from "../../utils/catch-error.js";
 import { messages } from "../../utils/constant/messages.js";
 import { ApiFeature } from "../../utils/file-feature.js";
 import cloudinary from "../../utils/fileUpload/cloudinary.js";
+import { deleteCloud } from "../../utils/fileUpload/file-functions.js";
 
 export const addproduct = catchAsyncError(async (req, res, next) => {
   let {
@@ -77,10 +78,6 @@ export const updateproductCloud = catchAsyncError(async (req, res, next) => {
     discount,
     stock,
     category,
-    subcategory,
-    brand,
-    size,
-    colors,
     imageCover,
     subImages,
   } = req.body;
@@ -88,10 +85,20 @@ export const updateproductCloud = catchAsyncError(async (req, res, next) => {
   let product = await Product.findOne({ _id: id, createdBy: userId });
   if (!product) return next(new AppError(messages.product.notFound, 404));
 
+  // Check if current user is the creator
+  if (
+    product.createdBy.toString() !== req.authUser._id.toString() &&
+    req.authUser.role !== "Admin"
+  ) {
+    return next(
+      new AppError("You are not authorized to delete this product", 403)
+    );
+  }
+
   let failImages = [];
 
   if (req.files && req.files.imageCover) {
-    deleteCloud(public_id);
+    await deleteCloud(product.imageCover.public_id);
     const { secure_url, public_id } = await cloudinary.uploader.upload(
       req.files.imageCover[0].path,
       { folder: "Be-Your-Support/product/imageCover" }
@@ -127,10 +134,6 @@ export const updateproductCloud = catchAsyncError(async (req, res, next) => {
       discount,
       stock,
       category,
-      subcategory,
-      brand,
-      size: size ? JSON.parse(size) : [],
-      colors: colors ? JSON.parse(colors) : [],
       updatedBy: req.authUser._id,
     },
     { new: true }
@@ -298,6 +301,16 @@ export const deleteproduct = catchAsyncError(async (req, res, next) => {
   let { id } = req.params;
   const product = await Product.findById(id);
   if (!product) return next(new AppError(messages.product.notFound, 404));
+
+  // Check if current user is the creator
+  if (
+    product.createdBy.toString() !== req.authUser._id.toString() &&
+    req.authUser.role !== "Admin"
+  ) {
+    return next(
+      new AppError("You are not authorized to delete this product", 403)
+    );
+  }
 
   //delete images
   await cloudinary.uploader.destroy(product.imageCover.public_id);

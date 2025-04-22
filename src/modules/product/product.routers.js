@@ -51,7 +51,8 @@ productRouter.post(
 );
 productRouter.delete(
   "/:id",
-  isAuthorized([roles.ADMIN]),
+  auth,
+  isAuthorized([roles.USER, roles.ADMIN, roles.VISITOR]),
   productControllers.deleteproduct
 );
 
