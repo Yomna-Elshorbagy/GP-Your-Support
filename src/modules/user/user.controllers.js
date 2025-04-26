@@ -113,7 +113,7 @@ export const verifyOtp = catchAsyncError(async (req, res, next) => {
     return next(new AppError(messages.user.invalidOTP, 401));
   if (user.otpExpire < new Date())
     return next(new AppError(messages.user.expireOTP, 400));
-  await User.findOneAndUpdate(
+  const updatedUser = await User.findOneAndUpdate(
     { email },
     {
       isVerified: true,
@@ -123,7 +123,15 @@ export const verifyOtp = catchAsyncError(async (req, res, next) => {
     },
     { new: true }
   );
-  res.json({ message: messages.user.verifiedSucessfully });
+  const token = await generateToken({
+    payload: {
+      userName: updatedUser.userName,
+      _id: updatedUser._id,
+      email: updatedUser.email,
+      role: updatedUser.role,
+    },
+  });
+  res.json({ message: messages.user.verifiedSucessfully, token });
 });
 
 export const logIn = catchAsyncError(async (req, res, next) => {
@@ -277,7 +285,10 @@ export const resetPassword = catchAsyncError(async (req, res, next) => {
     return next(new AppError(messages.user.invalidCredential, 401));
 
   // Hash new password
-  const hashPass = hashedPass(newPassword, Number(process.env.SALT_ROUNDS));
+  const hashPass = hashedPass({
+    password: newPassword,
+    saltRounds: Number(process.env.SALT_ROUNDS),
+  });
 
   // Update user password
   let updatedUser = await User.findOneAndUpdate(
@@ -373,6 +384,10 @@ export const getUserWithProducts = catchAsyncError(async (req, res, next) => {
     .populate({
       path: "products",
       select: "-__v -updatedBy", // exclude unwanted fields from products
+      populate: {
+        path: "category",
+        select: "name",  // only get category name
+      },
     });
 
   if (!user) {

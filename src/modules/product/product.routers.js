@@ -32,7 +32,7 @@ productRouter
     isAuthorized([roles.USER, roles.ADMIN, roles.VISITOR]),
     uploadMixFiles([
       { name: "imageCover", maxCount: 1 },
-      { name: "images", maxCount: 8 },
+      { name: "subImages", maxCount: 8 },
     ]),
     productControllers.updateproductCloud
   );
