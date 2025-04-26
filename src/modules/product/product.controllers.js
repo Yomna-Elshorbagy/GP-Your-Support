@@ -110,6 +110,7 @@ export const updateproductCloud = catchAsyncError(async (req, res, next) => {
 
   if (req.files && req.files.subImages) {
     product.subImages = [];
+    const oldSubImagesPublicIds = product.subImages.map(img => img.public_id);
     for (const file of req.files.subImages) {
       const { secure_url, public_id } = await cloudinary.uploader.upload(
         file.path,
