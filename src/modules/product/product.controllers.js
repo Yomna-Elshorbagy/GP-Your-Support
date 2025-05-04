@@ -172,7 +172,7 @@ export const getproducts = catchAsyncError(async (req, res, next) => {
     .filter();
   const products = await apiFeature.mongooseQuery;
   return res.json({
-    message: messages.coupon.fetchedSuccessfully,
+    message: messages.product.fetchedSuccessfully,
     sucess: true,
     data: products,
   });

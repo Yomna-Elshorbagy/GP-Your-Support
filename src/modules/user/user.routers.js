@@ -23,6 +23,12 @@ userRouter.post("/login", userControllers.logIn);
 userRouter.post("/logout", auth, userControllers.logout);
 
 // user routers
+userRouter.get(
+  "/",
+  auth,
+  isAuthorized([roles.ADMIN]),
+  userControllers.getAllUsers
+);
 userRouter.get("/profile", auth, userControllers.getProfile);
 userRouter.put(
   "/reset-pass",
@@ -41,5 +47,11 @@ userRouter.delete(
 
 //user data with products added
 userRouter.get("/getproducts", auth, userControllers.getUserWithProducts);
+userRouter.get(
+  "/:userId",
+  auth,
+  isAuthorized([roles.ADMIN]),
+  userControllers.getSpecificUser
+);
 
 export default userRouter;

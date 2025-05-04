@@ -49,7 +49,10 @@ export const updateCategoryCloud = catchAsyncError(async (req, res, next) => {
   const userId = req.authUser._id;
 
   // check category exisist
-  const categoryExisist = await Category.findOne({ _id: id, createdBy: userId });
+  const categoryExisist = await Category.findOne({
+    _id: id,
+    createdBy: userId,
+  });
   if (!categoryExisist)
     return next(new AppError(messages.category.notFound, 404));
   // check name exisit
@@ -97,14 +100,20 @@ export const getCategories = catchAsyncError(async (req, res, next) => {
 
 export const getSpeificCategory = catchAsyncError(async (req, res, next) => {
   let { id } = req.params;
-  let category = await Category.findById(id);
+  let category = await Category.findById(id).populate({
+    path: "createdBy",
+    select: ["userName", "address", "userName", "mobileNumber", "image"],
+  });
   category || next(new AppError(messages.category.notFound, 404));
   !category ||
     res.status(200).json({ message: "Category is : ", data: category });
 });
 
 export const getAllCategories = catchAsyncError(async (req, res, next) => {
-  const categories = await Category.find();
+  const categories = await Category.find().populate({
+    path: "createdBy",
+    select: ["userName", "address", "userName", "mobileNumber", "image"],
+  });
   res.status(200).json({ message: "Categories are : ", data: categories });
 });
 

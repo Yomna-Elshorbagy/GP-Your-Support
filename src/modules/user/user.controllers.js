@@ -386,7 +386,7 @@ export const getUserWithProducts = catchAsyncError(async (req, res, next) => {
       select: "-__v -updatedBy", // exclude unwanted fields from products
       populate: {
         path: "category",
-        select: "name",  // only get category name
+        select: "name", // only get category name
       },
     });
 
@@ -397,6 +397,25 @@ export const getUserWithProducts = catchAsyncError(async (req, res, next) => {
   res.status(200).json({
     success: true,
     message: "User data retrieved successfully",
+    data: user,
+  });
+});
+
+export const getAllUsers = catchAsyncError(async (req, res, next) => {
+  const users = await User.find();
+  res.status(200).json({
+    success: true,
+    message: messages.user.fetchedSuccessfully,
+    data: users,
+  });
+});
+
+export const getSpecificUser = catchAsyncError(async (req, res, next) => {
+  const { userId } = req.params;
+  const user = await User.findById(userId);
+  res.status(200).json({
+    success: true,
+    message: messages.user.fetchedSuccessfully,
     data: user,
   });
 });
