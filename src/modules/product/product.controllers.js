@@ -110,7 +110,7 @@ export const updateproductCloud = catchAsyncError(async (req, res, next) => {
 
   if (req.files && req.files.subImages) {
     product.subImages = [];
-    const oldSubImagesPublicIds = product.subImages.map(img => img.public_id);
+    const oldSubImagesPublicIds = product.subImages.map((img) => img.public_id);
     for (const file of req.files.subImages) {
       const { secure_url, public_id } = await cloudinary.uploader.upload(
         file.path,
@@ -306,7 +306,7 @@ export const deleteproduct = catchAsyncError(async (req, res, next) => {
   // Check if current user is the creator
   if (
     product.createdBy.toString() !== req.authUser._id.toString() &&
-    req.authUser.role !== "Admin"
+    req.authUser.role !== "admin"
   ) {
     return next(
       new AppError("You are not authorized to delete this product", 403)
