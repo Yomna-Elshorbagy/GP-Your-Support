@@ -53,5 +53,10 @@ userRouter.get(
   isAuthorized([roles.ADMIN]),
   userControllers.getSpecificUser
 );
-
+userRouter.delete(
+  "/deleteuser/:userId",
+  auth,
+  isAuthorized([roles.ADMIN]),
+  userControllers.deleteUserByAdmin
+);
 export default userRouter;

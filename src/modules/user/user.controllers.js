@@ -250,6 +250,20 @@ export const logout = catchAsyncError(async (req, res, next) => {
   });
 });
 
+export const deleteUserByAdmin = catchAsyncError(async (req, res, next) => {
+  const { userId } = req.params;
+  const user = await User.findById(userId);
+  if (!user) return next(new AppError(messages.user.notFound, 404));
+
+  const deletedUser = await User.deleteOne({ userId });
+  if (!deletedUser) {
+    return next(new AppError(messages.user.failToDelete, 500));
+  }
+  res
+    .status(200)
+    .json({ message: messages.user.deletedSucessfully, sucess: true });
+});
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 

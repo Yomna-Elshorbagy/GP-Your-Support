@@ -138,9 +138,9 @@ export const deleteCategoryCloud = catchAsyncError(async (req, res, next) => {
 
   for (let i = 0; i < imagePaths.length; i++) {
     if (typeof (imagePaths[i] === "string")) {
-      deleteCloud(imagePaths);
+      deleteCloud(imagePaths[i]);
     } else {
-      await cloudinary.uploader.destroy(imagePaths[i].puplic_id);
+      await cloudinary.uploader.destroy(imagePaths[i].public_id);
     }
   }
   await cloudinary.uploader.destroy(categoryExisist.image.public_id);
