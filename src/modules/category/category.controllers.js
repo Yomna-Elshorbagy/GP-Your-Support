@@ -90,12 +90,32 @@ export const updateCategoryCloud = catchAsyncError(async (req, res, next) => {
 
 export const getCategories = catchAsyncError(async (req, res, next) => {
   const apiFeature = new ApiFeature(Category.find(), req.query)
-    .pagination()
-    .sort()
-    .select()
-    .filter();
+    .filter()
+    .search();
+
+  const countQuery = new ApiFeature(Category.find(), req.query)
+    .filter()
+    .search();
+  const totalDocuments = await countQuery.mongooseQuery.countDocuments();
+  apiFeature.pagination().sort().select();
+
   const category = await apiFeature.mongooseQuery;
-  return res.json({ sucess: true, data: category });
+
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.size) || 10;
+  const numberOfPages = Math.ceil(totalDocuments / limit);
+
+  return res.json({
+    sucess:true,
+    results: category.length,
+    metadata: {
+      currentPage: page,
+      numberOfPages,
+      limit,
+      prevPage: page > 1 ? page - 1 : null,
+    },
+    category,
+  });
 });
 
 export const getSpeificCategory = catchAsyncError(async (req, res, next) => {

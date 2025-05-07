@@ -166,14 +166,30 @@ export const getAllproducts = catchAsyncError(async (req, res, next) => {
 // api feature
 export const getproducts = catchAsyncError(async (req, res, next) => {
   const apiFeature = new ApiFeature(Product.find(), req.query)
-    .pagination()
-    .sort()
-    .select()
-    .filter();
+    .filter()
+    .search();
+  const countQuery = new ApiFeature(Product.find(), req.query)
+    .filter()
+    .search();
+  const totalDocuments = await countQuery.mongooseQuery.countDocuments();
+
+  apiFeature.pagination().sort().select();
   const products = await apiFeature.mongooseQuery;
+
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.size) || 10;
+  const numberOfPages = Math.ceil(totalDocuments / limit);
+
   return res.json({
+    results: products.length,
+    metadata: {
+      currentPage: page,
+      numberOfPages,
+      limit,
+      prevPage: page > 1 ? page - 1 : null,
+    },
     message: messages.product.fetchedSuccessfully,
-    sucess: true,
+    success: true,
     data: products,
   });
 });
