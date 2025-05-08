@@ -255,7 +255,7 @@ export const deleteUserByAdmin = catchAsyncError(async (req, res, next) => {
   const user = await User.findById(userId);
   if (!user) return next(new AppError(messages.user.notFound, 404));
 
-  const deletedUser = await User.deleteOne({ userId });
+  const deletedUser = await User.deleteOne({ _id: userId });
   if (!deletedUser) {
     return next(new AppError(messages.user.failToDelete, 500));
   }

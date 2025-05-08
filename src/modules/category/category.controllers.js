@@ -89,11 +89,23 @@ export const updateCategoryCloud = catchAsyncError(async (req, res, next) => {
 });
 
 export const getCategories = catchAsyncError(async (req, res, next) => {
-  const apiFeature = new ApiFeature(Category.find(), req.query)
+  const apiFeature = new ApiFeature(
+    Category.find().populate({
+      path: "createdBy",
+      select: ["userName", "address", "userName", "mobileNumber", "image"],
+    }),
+    req.query
+  )
     .filter()
     .search();
 
-  const countQuery = new ApiFeature(Category.find(), req.query)
+  const countQuery = new ApiFeature(
+    Category.find().populate({
+      path: "createdBy",
+      select: ["userName", "address", "userName", "mobileNumber", "image"],
+    }),
+    req.query
+  )
     .filter()
     .search();
   const totalDocuments = await countQuery.mongooseQuery.countDocuments();
@@ -106,7 +118,7 @@ export const getCategories = catchAsyncError(async (req, res, next) => {
   const numberOfPages = Math.ceil(totalDocuments / limit);
 
   return res.json({
-    sucess:true,
+    sucess: true,
     results: category.length,
     metadata: {
       currentPage: page,

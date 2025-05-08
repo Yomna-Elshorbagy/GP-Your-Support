@@ -165,10 +165,32 @@ export const getAllproducts = catchAsyncError(async (req, res, next) => {
 
 // api feature
 export const getproducts = catchAsyncError(async (req, res, next) => {
-  const apiFeature = new ApiFeature(Product.find(), req.query)
+  const apiFeature = new ApiFeature(
+    Product.find()
+      .populate({
+        path: "createdBy",
+        select: ["address", "userName", "mobileNumber"],
+      })
+      .populate({
+        path: "category",
+        select: ["name", "slug", "image", "createdBy"],
+      }),
+    req.query
+  )
     .filter()
     .search();
-  const countQuery = new ApiFeature(Product.find(), req.query)
+  const countQuery = new ApiFeature(
+    Product.find()
+      .populate({
+        path: "createdBy",
+        select: ["address", "userName", "mobileNumber"],
+      })
+      .populate({
+        path: "category",
+        select: ["name", "slug", "image", "createdBy"],
+      }),
+    req.query
+  )
     .filter()
     .search();
   const totalDocuments = await countQuery.mongooseQuery.countDocuments();
