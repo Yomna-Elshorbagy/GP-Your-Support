@@ -165,20 +165,27 @@ export const getAllproducts = catchAsyncError(async (req, res, next) => {
 
 // api feature
 export const getproducts = catchAsyncError(async (req, res, next) => {
-  const apiFeature = new ApiFeature(
-    Product.find()
-      .populate({
-        path: "createdBy",
-        select: ["address", "userName", "mobileNumber"],
-      })
-      .populate({
-        path: "category",
-        select: ["name", "slug", "image", "createdBy"],
-      }),
-    req.query
-  )
-    .filter()
-    .search();
+  const { category, page = 1, size = 10 } = req.query;
+
+  let productQuery = Product.find()
+    .populate({
+      path: "createdBy",
+      select: ["address", "userName", "mobileNumber"],
+    })
+    .populate({
+      path: "category",
+      select: ["name", "slug", "image", "createdBy"],
+    });
+
+  // If category is provided, filter by it
+  if (category) {
+    productQuery = productQuery.where('category').equals(category);
+  }
+
+  const apiFeature = new ApiFeature(productQuery, req.query)
+    .filter()  
+    .search(); 
+
   const countQuery = new ApiFeature(
     Product.find()
       .populate({
@@ -193,21 +200,20 @@ export const getproducts = catchAsyncError(async (req, res, next) => {
   )
     .filter()
     .search();
+
   const totalDocuments = await countQuery.mongooseQuery.countDocuments();
 
   apiFeature.pagination().sort().select();
   const products = await apiFeature.mongooseQuery;
 
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.size) || 10;
-  const numberOfPages = Math.ceil(totalDocuments / limit);
+  const numberOfPages = Math.ceil(totalDocuments / size);
 
   return res.json({
     results: products.length,
     metadata: {
-      currentPage: page,
+      currentPage: parseInt(page),
       numberOfPages,
-      limit,
+      limit: parseInt(size),
       prevPage: page > 1 ? page - 1 : null,
     },
     message: messages.product.fetchedSuccessfully,
@@ -215,6 +221,7 @@ export const getproducts = catchAsyncError(async (req, res, next) => {
     data: products,
   });
 });
+
 
 export const getSpeificproduct = catchAsyncError(async (req, res, next) => {
   let { id } = req.params;
