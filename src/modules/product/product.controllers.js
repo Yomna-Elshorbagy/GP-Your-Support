@@ -82,16 +82,16 @@ export const updateproductCloud = catchAsyncError(async (req, res, next) => {
     subImages,
   } = req.body;
 
-  let product = await Product.findOne({ _id: id, createdBy: userId });
+  let product = await Product.findOne({ _id: id });
   if (!product) return next(new AppError(messages.product.notFound, 404));
 
   // Check if current user is the creator
   if (
     product.createdBy.toString() !== req.authUser._id.toString() &&
-    req.authUser.role !== "Admin"
+    req.authUser.role !== "admin"
   ) {
     return next(
-      new AppError("You are not authorized to delete this product", 403)
+      new AppError("You are not authorized to Update this product", 403)
     );
   }
 
@@ -179,12 +179,10 @@ export const getproducts = catchAsyncError(async (req, res, next) => {
 
   // If category is provided, filter by it
   if (category) {
-    productQuery = productQuery.where('category').equals(category);
+    productQuery = productQuery.where("category").equals(category);
   }
 
-  const apiFeature = new ApiFeature(productQuery, req.query)
-    .filter()  
-    .search(); 
+  const apiFeature = new ApiFeature(productQuery, req.query).filter().search();
 
   const countQuery = new ApiFeature(
     Product.find()
@@ -221,7 +219,6 @@ export const getproducts = catchAsyncError(async (req, res, next) => {
     data: products,
   });
 });
-
 
 export const getSpeificproduct = catchAsyncError(async (req, res, next) => {
   let { id } = req.params;
@@ -330,7 +327,7 @@ export const subscribeToPriceDrop = catchAsyncError(async (req, res, next) => {
     });
   }
 
-  await PriceAlert.create({
+  const newSubscription = await PriceAlert.create({
     user: authUserId,
     product: productId,
     subscribedPrice: product.price,
@@ -340,6 +337,7 @@ export const subscribeToPriceDrop = catchAsyncError(async (req, res, next) => {
     success: true,
     message: "Subscribed for price drop alerts successfully!",
     subscribedPrice: product.price,
+    data: newSubscription,
   });
 });
 
@@ -372,4 +370,10 @@ export const deleteproduct = catchAsyncError(async (req, res, next) => {
     sucess: true,
     data: deleteProduct,
   });
+});
+
+export const getLowStock = catchAsyncError(async (req, res) => {
+  const threshold = parseInt(req.query.threshold) || 10;
+  const products = await Product.find({ stock: { $lte: threshold } });
+  res.json({ success: true, threshold, count: products.length, products });
 });
