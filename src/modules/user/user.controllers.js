@@ -332,18 +332,20 @@ export const updateUser = catchAsyncError(async (req, res, next) => {
 
   const user = await User.findById(id);
   if (!user) return next(new AppError(messages.user.notFound, 404));
+  if (req.file) {
+    const { secure_url, public_id } = await cloudinary.uploader.upload(
+      req.file.path,
+      { public_id: user.image.public_id }
+    );
+    user.image = { secure_url, public_id };
+  }
+  const updatedUser = await user.save();
 
-  const updatedUser = await User.findOneAndUpdate(
-    { _id: id },
-    {
-      userName,
-      mobileNumber,
-      address,
-    },
-    { new: true }
-  );
 
   if (!updatedUser) {
+     if (req.file) {
+      await cloudinary.uploader.destroy(user.image.public_id);
+    }
     return next(new AppError(messages.user.failToUpdate, 500));
   }
   updatedUser.password = undefined;

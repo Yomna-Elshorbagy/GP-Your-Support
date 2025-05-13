@@ -36,7 +36,12 @@ userRouter.put(
   validate(resetPassVal),
   userControllers.resetPassword
 );
-userRouter.put("/", auth, userControllers.updateUser);
+userRouter.put(
+  "/",
+  auth,
+  uploadSingleFile("image"),
+  userControllers.updateUser
+);
 userRouter.put("/softdelete", auth, userControllers.softDeleteUser);
 userRouter.delete(
   "/",

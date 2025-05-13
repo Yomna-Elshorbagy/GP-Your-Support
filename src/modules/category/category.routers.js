@@ -19,6 +19,15 @@ categoryRouter.post(
 
 categoryRouter.get("/", categoryControllers.getAllCategories);
 categoryRouter.get("/getcategories", categoryControllers.getCategories);
+categoryRouter.get(
+  "/:id/products",
+  categoryControllers.getProductsByCategoryId
+);
+categoryRouter.get(
+  "/analytics/trending",
+  categoryControllers.getTrendingCategories
+);
+categoryRouter.get("/analytics/stats", categoryControllers.getCategoryStats);
 
 categoryRouter
   .route("/:id")

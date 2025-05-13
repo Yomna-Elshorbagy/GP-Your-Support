@@ -49,10 +49,7 @@ export const updateCategoryCloud = catchAsyncError(async (req, res, next) => {
   const userId = req.authUser._id;
 
   // check category exisist
-  const categoryExisist = await Category.findOne({
-    _id: id,
-    createdBy: userId,
-  });
+  const categoryExisist = await Category.findById(id);
   if (!categoryExisist)
     return next(new AppError(messages.category.notFound, 404));
   // check name exisit
@@ -180,5 +177,84 @@ export const deleteCategoryCloud = catchAsyncError(async (req, res, next) => {
   res.status(200).json({
     message: messages.category.deletedSucessfully,
     sucess: true,
+  });
+});
+
+export const getProductsByCategoryId = catchAsyncError(
+  async (req, res, next) => {
+    const { id } = req.params;
+    const baseQuery = Product.find({ category: id }).populate("createdBy", "userName");
+    const totalProducts = await Product.countDocuments({ category: id });
+
+     const apiFeature = new ApiFeature(baseQuery, req.query)
+      .filter()
+      .search()
+      .pagination()
+      .sort()
+      .select();
+
+    const products = await apiFeature.mongooseQuery;
+    const currentPage = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const numberOfPages = Math.ceil(totalProducts / limit);
+    const prevPage = currentPage > 1 ? currentPage - 1 : null;
+    const nextPage = currentPage < numberOfPages ? currentPage + 1 : null;
+
+    res.status(200).json({
+      success: true,
+      results: products.length,
+      data: products,
+      metadata: {
+        currentPage,
+        numberOfPages,
+        limit,
+        prevPage,
+        nextPage,
+      },
+    });
+  }
+);
+
+export const getTrendingCategories = catchAsyncError(async (req, res, next) => {
+  const topCategories = await Product.aggregate([
+    { $group: { _id: "$category", count: { $sum: 1 } } },
+    { $sort: { count: -1 } },
+    { $limit: 5 },
+    {
+      $lookup: {
+        from: "categories",
+        localField: "_id",
+        foreignField: "_id",
+        as: "category",
+      },
+    },
+    { $unwind: "$category" },
+  ]);
+
+  res.status(200).json({
+    success: true,
+    data: topCategories,
+  });
+});
+
+export const getCategoryStats = catchAsyncError(async (req, res, next) => {
+  const totalCategories = await Category.countDocuments();
+  const latest = await Category.find().sort({ createdAt: -1 }).limit(1);
+  const productsPerCategory = await Product.aggregate([
+    {
+      $group: {
+        _id: "$category",
+        count: { $sum: 1 },
+      },
+    },
+  ]);
+
+  res.status(200).json({
+    success: true,
+    data: {
+      totalCategories,
+      latest,
+      productsPerCategory,
+    },
   });
 });
