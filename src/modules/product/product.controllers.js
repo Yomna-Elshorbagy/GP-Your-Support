@@ -70,18 +70,6 @@ export const addproduct = catchAsyncError(async (req, res, next) => {
 
 export const updateproductCloud = catchAsyncError(async (req, res, next) => {
   const { id } = req.params;
-  const userId = req.authUser._id;
-  let {
-    title,
-    description,
-    price,
-    discount,
-    stock,
-    category,
-    imageCover,
-    subImages,
-  } = req.body;
-
   let product = await Product.findOne({ _id: id });
   if (!product) return next(new AppError(messages.product.notFound, 404));
 
@@ -98,19 +86,18 @@ export const updateproductCloud = catchAsyncError(async (req, res, next) => {
   let failImages = [];
 
   if (req.files && req.files.imageCover) {
-    await deleteCloud(product.imageCover.public_id);
+    await deleteCloud(product.imageCover?.public_id);
     const { secure_url, public_id } = await cloudinary.uploader.upload(
       req.files.imageCover[0].path,
       { folder: "Be-Your-Support/product/imageCover" }
     );
     failImages.push(public_id);
     product.imageCover = { secure_url, public_id };
-    await deleteCloud(product.imageCover.public_id);
   }
 
   if (req.files && req.files.subImages) {
-    product.subImages = [];
     const oldSubImagesPublicIds = product.subImages.map((img) => img.public_id);
+    product.subImages = [];
     for (const file of req.files.subImages) {
       const { secure_url, public_id } = await cloudinary.uploader.upload(
         file.path,
@@ -120,25 +107,26 @@ export const updateproductCloud = catchAsyncError(async (req, res, next) => {
       failImages.push(public_id);
     }
     for (const publicId of oldSubImagesPublicIds) {
-      await deleteCloud(publicId);
+      if (publicId) await deleteCloud(publicId);
     }
   }
+  const updatableFields = [
+    "title",
+    "description",
+    "price",
+    "discount",
+    "stock",
+    "category",
+  ];
 
-  const updatedProduct = await Product.findByIdAndUpdate(
-    id,
-    {
-      title,
-      description,
-      imageCover,
-      subImages,
-      price,
-      discount,
-      stock,
-      category,
-      updatedBy: req.authUser._id,
-    },
-    { new: true }
-  );
+  updatableFields.forEach((field) => {
+    if (req.body[field] !== undefined) {
+      product[field] = req.body[field];
+    }
+  });
+  product.updatedBy = req.authUser._id;
+
+  const updatedProduct = await product.save();
   if (!updatedProduct) {
     req.failImages = failImages;
     return next(new AppError(messages.product.failToUpdate, 500));
